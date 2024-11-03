@@ -1,0 +1,6 @@
+name: 'PrismaHomes'
+version: '1.0.0'
+api-version: '1.21'
+main: net.prismaforge.prismahomes.PrismaHomes
+authors: [Waischbrot]
+website: https://prismaforge.net/
