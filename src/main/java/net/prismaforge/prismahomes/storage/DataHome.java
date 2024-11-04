@@ -5,11 +5,17 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
+import net.prismaforge.libraries.serializer.StringSerializer;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Optional;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Accessors(fluent = true)
 @Getter @Setter
-public final class DataHome {
+public final class DataHome implements Serializable {
     final String key;
     String displayName;
     String material;
@@ -30,5 +36,24 @@ public final class DataHome {
         this.z = z;
         this.yaw = yaw;
         this.pitch = pitch;
+    }
+
+    @NotNull
+    public String serialize() {
+        try {
+            return StringSerializer.toString(this);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @NotNull
+    public static Optional<DataHome> deserialize(final String serialized) {
+        try {
+            final DataHome home = (DataHome) StringSerializer.fromString(serialized);
+            return Optional.of(home);
+        } catch (IOException | ClassNotFoundException e) {
+            return Optional.empty();
+        }
     }
 }
