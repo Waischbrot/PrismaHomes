@@ -2,11 +2,11 @@ package net.prismaforge.prismahomes.storage;
 
 import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import net.prismaforge.libraries.serializer.StringSerializer;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -38,7 +38,7 @@ public final class DataHome implements Serializable {
         this.pitch = pitch;
     }
 
-    @NotNull
+    @NonNull
     public String serialize() {
         try {
             return StringSerializer.toString(this);
@@ -47,7 +47,7 @@ public final class DataHome implements Serializable {
         }
     }
 
-    @NotNull
+    @NonNull
     public static Optional<DataHome> deserialize(final String serialized) {
         try {
             final DataHome home = (DataHome) StringSerializer.fromString(serialized);
