@@ -1,4 +1,14 @@
 package net.prismaforge.libraries;
 
-public class PrismaLib {
+import lombok.experimental.UtilityClass;
+import net.prismaforge.prismahomes.PrismaHomes;
+
+@UtilityClass
+public final class PrismaLib {
+    public static PrismaHomes PLUGIN;
+
+    public static void initialize(final PrismaHomes plugin) {
+        PrismaLib.PLUGIN = plugin;
+        //init inventory api
+    }
 }
