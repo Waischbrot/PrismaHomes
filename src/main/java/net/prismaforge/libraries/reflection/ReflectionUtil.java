@@ -1,7 +1,8 @@
 package net.prismaforge.libraries.reflection;
 
-import org.jetbrains.annotations.Nullable;
 
+
+import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 

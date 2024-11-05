@@ -1,4 +1,11 @@
 package net.prismaforge.libraries.inventory.events;
 
-public class FakeCloseEvent {
+import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.inventory.InventoryView;
+
+public class FakeCloseEvent extends InventoryCloseEvent {
+
+    public FakeCloseEvent(final InventoryView transaction) {
+        super(transaction);
+    }
 }
