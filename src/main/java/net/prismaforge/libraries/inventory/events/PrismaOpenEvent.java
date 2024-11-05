@@ -21,7 +21,7 @@ public class PrismaOpenEvent extends Event implements Cancellable {
     }
 
     InventoryOpenEvent event;
-    PrismaInventory rubyInventory;
+    PrismaInventory prismaInventory;
     @NonFinal boolean cancelled;
 
     @Override

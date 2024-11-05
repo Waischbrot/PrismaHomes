@@ -21,7 +21,7 @@ public class PrismaCloseEvent extends Event implements Cancellable {
     }
 
     InventoryCloseEvent event;
-    PrismaInventory rubyInventory;
+    PrismaInventory prismaInventory;
     @NonFinal boolean cancelled;
 
     @Override

@@ -21,7 +21,7 @@ public class PrismaDragEvent extends Event implements Cancellable {
     }
 
     InventoryDragEvent event;
-    PrismaInventory rubyInventory;
+    PrismaInventory prismaInventory;
     @NonFinal boolean cancelled;
 
     @Override
