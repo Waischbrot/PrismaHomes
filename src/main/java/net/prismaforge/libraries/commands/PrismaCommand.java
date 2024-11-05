@@ -1,13 +1,12 @@
 package net.prismaforge.libraries.commands;
 
 import lombok.NonNull;
-import net.prismaforge.libraries.PrismaLib;
 import net.prismaforge.libraries.commands.executors.CommandData;
 import net.prismaforge.libraries.commands.executors.SubCommandData;
 import net.prismaforge.libraries.commands.executors.TabCompletionData;
 import net.prismaforge.libraries.commands.utility.CommandUtils;
 import net.prismaforge.libraries.reflection.ReflectionUtil;
-import net.prismaforge.libraries.strings.Text;
+import net.prismaforge.libraries.strings.ColorUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.defaults.BukkitCommand;
 import org.bukkit.util.StringUtil;
@@ -26,11 +25,11 @@ public final class PrismaCommand extends BukkitCommand {
     public boolean execute(@NonNull CommandSender sender, @NonNull String label, @NonNull String[] args) {
         SubCommandData subCommandData = this.commandData.findSubCommand(args).orElse(null);
         if (subCommandData == null) {
-            PrismaLib.PLUGIN.adventure().sender(sender).sendMessage(Text.text(this.commandData.getUsage()));
+            sender.sendMessage(ColorUtil.colorString(this.commandData.getUsage()));
             return false;
         } else if (!subCommandData.getPermission().isEmpty()) {
             if (!CommandUtils.hasPermission(sender, subCommandData.getPermission())) {
-                PrismaLib.PLUGIN.adventure().sender(sender).sendMessage(Text.text(subCommandData.getPermissionMessage()));
+                sender.sendMessage(ColorUtil.colorString(subCommandData.getPermissionMessage()));
                 return false;
             }
         }

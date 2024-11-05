@@ -8,8 +8,8 @@ import net.prismaforge.libraries.commands.annotations.TabCompletion;
 import net.prismaforge.libraries.reflection.ReflectionUtil;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.Nullable;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
