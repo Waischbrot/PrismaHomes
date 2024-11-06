@@ -11,6 +11,5 @@ public final class PrismaLib {
     public static void initialize(final PrismaHomes plugin) {
         PrismaLib.PLUGIN = plugin;
         InventoryAPI.init(PrismaLib.PLUGIN);
-        //init inventory api
     }
 }
