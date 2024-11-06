@@ -4,6 +4,7 @@ import net.prismaforge.libraries.inventory.basic.Button;
 import net.prismaforge.libraries.inventory.basic.PrismaInventory;
 import net.prismaforge.libraries.inventory.paged.Pagination;
 import net.prismaforge.libraries.items.Items;
+import net.prismaforge.prismahomes.PrismaHomes;
 import net.prismaforge.prismahomes.storage.DataHome;
 import net.prismaforge.prismahomes.storage.DataPlayer;
 import net.prismaforge.prismahomes.utility.LangKey;
@@ -42,7 +43,7 @@ public final class ChangeIconMenu extends PrismaInventory {
     private final DataHome home;
     private final Pagination pagination;
 
-    public ChangeIconMenu(final Player player, final SurvivalPlayer data, final DataHome home, final PrismaLanguage language) {
+    public ChangeIconMenu(Player player, PrismaHomes plugin, DataPlayer data, DataHome home) {
         super(player, "change_icon_homes", LangKey.MENU_CHANGEICON_TITLE.translate(language), 5);
         this.language = language;
         this.data = data;

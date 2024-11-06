@@ -7,10 +7,12 @@ import net.prismaforge.libraries.inventory.SimpleMenuItem;
 import net.prismaforge.libraries.inventory.basic.Button;
 import net.prismaforge.libraries.inventory.basic.PrismaInventory;
 import net.prismaforge.libraries.items.Items;
+import net.prismaforge.libraries.scheduler.Scheduler;
 import net.prismaforge.libraries.strings.ColorUtil;
 import net.prismaforge.libraries.strings.NumberFormat;
 import net.prismaforge.libraries.wrapper.PrismaSound;
 import net.prismaforge.prismahomes.PrismaHomes;
+import net.prismaforge.prismahomes.listener.ChatListener;
 import net.prismaforge.prismahomes.storage.DataHome;
 import net.prismaforge.prismahomes.storage.DataPlayer;
 import net.prismaforge.prismahomes.utility.LangKey;
@@ -69,7 +71,7 @@ public final class EditHomeMenu extends PrismaInventory {
             })).clickAction(e -> {
                 final Location location = player.getLocation();
                 this.home.world(location.getWorld().getName())
-                        .x(location.x()).y(location.y()).z(location.z())
+                        .x(location.getX()).y(location.getY()).z(location.getZ())
                         .yaw(location.getYaw()).pitch(location.getPitch());
                 new ListHomesMenu(player, plugin, data).open();
                 new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).play(player);
@@ -78,41 +80,44 @@ public final class EditHomeMenu extends PrismaInventory {
             }));
 
             //change displayname
-            addButton(12, new Button(new ItemBuilder(Material.NAME_TAG).name(LangKey.MENU_ITEM_RENAME_TITLE.translate(language))
-                    .stringLores(LangKey.MENU_ITEM_RENAME_LORE.translateList(language)).build())
-                    .setClickEventConsumer(e -> {
-                        ChatListener.addTask(player, input -> {
-                            if (input.length() <= 40) {
-                                home.displayName(input);
-                                MessageUtil.message(player, LangKey.HOMES_RENAME_SUCCESS, LangKey.PREFIX_HOMES);
-                                new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).playToIndividual(player);
-                                saveSecure();
-                            } else {
-                                new PrismaSound(Sound.BLOCK_ANVIL_USE, 2, 0.2f).playToIndividual(player);
-                                MessageUtil.message(player, LangKey.HOMES_RENAME_INPUT_TOO_LONG, LangKey.PREFIX_HOMES);
-                            }
-                            PrismaCoreLibrary.syncScheduler().run(() -> new EditHomeMenu(player, data, home, language).open());
-                        });
-                        MessageUtil.message(player, LangKey.HOMES_ENTER_NEW_NAME, LangKey.PREFIX_HOMES);
-                        player.closeInventory();
-                    }));
+            addButton(12, new Button(Items.createItem(Material.NAME_TAG, ic -> {
+                ic.name(LangKey.MENU_ITEM_RENAME_TITLE.translate(config));
+                ic.lore(LangKey.MENU_ITEM_RENAME_LORE.translateList(config));
+            })).clickAction(e -> {
+                ChatListener.addTask(player, input -> {
+                    if (input.length() <= 40) {
+                        home.displayName(input);
+                        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_RENAME_SUCCESS.translate(config)));
+                        new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).play(player);
+                        saveSecure();
+                    } else {
+                        new PrismaSound(Sound.BLOCK_ANVIL_USE, 2, 0.2f).play(player);
+                        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_RENAME_INPUT_TOO_LONG.translate(config)));
+                    }
+                    new Scheduler(plugin, false).run(() -> new EditHomeMenu(player, plugin, data, home).open());
+                });
+                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_ENTER_NEW_NAME.translate(config)));
+                player.closeInventory();
+            }));
 
             //change icon
-            addButton(14, new Button(new ItemBuilder(Material.WHITE_WOOL).name(LangKey.MENU_ITEM_SETICON_TITLE.translate(language))
-                    .stringLores(LangKey.MENU_ITEM_SETICON_LORE.translateList(language)).build())
-                    .setClickEventConsumer(e -> new ChangeHomeIconMenu(player, data, home, language).open()));
+            addButton(14, new Button(Items.createItem(Material.WHITE_WOOL, ic -> {
+                ic.name(LangKey.MENU_ITEM_SETICON_TITLE.translate(config));
+                ic.lore(LangKey.MENU_ITEM_SETICON_LORE.translateList(config));
+            })).clickAction(e -> new ChangeIconMenu(player, plugin, data, home).open()));
 
             //delete home and return to home list
-            addButton(16, new Button(new SkullBuilder()
-                    .texture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmUwZmQxMDE5OWU4ZTRmY2RhYmNhZTRmODVjODU5MTgxMjdhN2M1NTUzYWQyMzVmMDFjNTZkMThiYjk0NzBkMyJ9fX0=")
-                    .name(LangKey.MENU_ITEM_DELHOME_TITLE.translate(language)).stringLores(LangKey.MENU_ITEM_DELHOME_LORE.translateList(language)).build())
-                    .setClickEventConsumer(e -> {
-                        this.data.homes().remove(home); //remove home from list
-                        new ListHomesMenu(player, data, language, home.key()).open();
-                        new PrismaSound(Sound.BLOCK_ANVIL_USE, 2, 0.2f).playToIndividual(player);
-                        MessageUtil.message(player, LangKey.HOMES_DELETED_HOME, LangKey.PREFIX_HOMES);
-                        saveSecure();
-                    }));
+            addButton(16, new Button(Items.createSkull(sc -> {
+                sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmUwZmQxMDE5OWU4ZTRmY2RhYmNhZTRmODVjODU5MTgxMjdhN2M1NTUzYWQyMzVmMDFjNTZkMThiYjk0NzBkMyJ9fX0=");
+                sc.name(LangKey.MENU_ITEM_DELHOME_TITLE.translate(config));
+                sc.lore(LangKey.MENU_ITEM_DELHOME_LORE.translateList(config));
+            })).clickAction(e -> {
+                this.data.homes().remove(home); //remove home from list
+                new ListHomesMenu(player, plugin, data).open();
+                new PrismaSound(Sound.BLOCK_ANVIL_USE, 2, 0.2f).play(player);
+                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_DELETED_HOME.translate(config)));
+                saveSecure();
+            }));
         });
     }
 

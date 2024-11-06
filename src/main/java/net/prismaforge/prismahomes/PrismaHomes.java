@@ -8,7 +8,9 @@ import net.prismaforge.libraries.commands.CommandRegister;
 import net.prismaforge.libraries.config.Config;
 import net.prismaforge.prismahomes.commands.HomeCommand;
 import net.prismaforge.prismahomes.commands.SetHomeCommand;
+import net.prismaforge.prismahomes.listener.ChatListener;
 import net.prismaforge.prismahomes.storage.StorageHandler;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -28,6 +30,8 @@ public final class PrismaHomes extends JavaPlugin {
 
         this.configuration = new Config("config", this);
         this.storageHandler = new StorageHandler(this);
+
+        Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
     }
 
     @Override
