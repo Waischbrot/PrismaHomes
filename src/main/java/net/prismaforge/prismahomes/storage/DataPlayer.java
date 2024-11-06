@@ -31,6 +31,7 @@ public final class DataPlayer {
         }
     }
 
+    @NonNull
     public static DataPlayer createFromConfig(final Config config, final UUID uuid) {
         if (!config.contains("uuid")) {
             config.setField("uuid", uuid.toString());
