@@ -1,9 +1,15 @@
 package net.prismaforge.prismahomes.ui;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import net.prismaforge.libraries.config.Config;
+import net.prismaforge.libraries.inventory.SimpleMenuItem;
 import net.prismaforge.libraries.inventory.basic.Button;
 import net.prismaforge.libraries.inventory.basic.PrismaInventory;
 import net.prismaforge.libraries.inventory.paged.Pagination;
 import net.prismaforge.libraries.items.Items;
+import net.prismaforge.libraries.strings.ColorUtil;
+import net.prismaforge.libraries.wrapper.PrismaSound;
 import net.prismaforge.prismahomes.PrismaHomes;
 import net.prismaforge.prismahomes.storage.DataHome;
 import net.prismaforge.prismahomes.storage.DataPlayer;
@@ -18,6 +24,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class ChangeIconMenu extends PrismaInventory {
     private static final List<Material> MATERIALS;
 
@@ -38,17 +45,19 @@ public final class ChangeIconMenu extends PrismaInventory {
         );
     }
 
-    private final PrismaLanguage language;
-    private final DataPlayer data;
-    private final DataHome home;
-    private final Pagination pagination;
+    PrismaHomes plugin;
+    Config config;
+    DataPlayer data;
+    DataHome home;
+    Pagination pagination;
 
     public ChangeIconMenu(Player player, PrismaHomes plugin, DataPlayer data, DataHome home) {
-        super(player, "change_icon_homes", LangKey.MENU_CHANGEICON_TITLE.translate(language), 5);
-        this.language = language;
+        super(player, "change_icon_homes", LangKey.MENU_CHANGEICON_TITLE.translate(plugin.getConfiguration()), 5);
+        this.plugin = plugin;
+        this.config = plugin.getConfiguration();
         this.data = data;
         this.home = home;
-        this.pagination = new PageHandler(this);
+        this.pagination = new Pagination(this);
         this.pagination.registerPageSlotsBetween(10, 16);
         this.pagination.registerPageSlotsBetween(19, 25);
         this.pagination.registerPageSlotsBetween(28, 34);
@@ -56,45 +65,32 @@ public final class ChangeIconMenu extends PrismaInventory {
 
     private void registerPagination() {
         for (final Material material : MATERIALS) {
-            final ItemBuilder builder = new ItemBuilder(material);
-            builder.name(LangKey.MENU_ITEM_GENERIC_MATERIAL_TITLE.translate(language));
-            builder.stringLores(LangKey.MENU_ITEM_GENERIC_MATERIAL_LORE.translateList(language));
-            //add all itemflags to prevent weird displays!
-            for (final ItemFlag itemFlag : ItemFlag.values()) {
-                builder.addItemFlags(itemFlag);
-            }
-            this.pagination.addButton(new Button(builder.build())
-                    .setClickEventConsumer(e -> equipMaterial(material)));
+            this.pagination.addButton(new Button(Items.createItem(material, ic -> {
+                ic.name(LangKey.MENU_ITEM_GENERIC_MATERIAL_TITLE.translate(config));
+                ic.lore(LangKey.MENU_ITEM_GENERIC_MATERIAL_LORE.translateList(config));
+                ic.flag(ItemFlag.values());
+            })).clickAction(e -> equipMaterial(material)));
         }
     }
 
     private void equipMaterial(final Material material) {
         this.home.material(material.toString());
-        new EditHomeMenu(player, data, home, language).open();
-        new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).playToIndividual(player);
-        MessageUtil.message(player, LangKey.HOMES_CHANGED_MATERIAL, LangKey.PREFIX);
+        new EditHomeMenu(player, plugin, data, home).open();
+        new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).play(player);
+        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_CHANGED_MATERIAL.translate(config)));
         saveSecure();
-    }
-
-    //has to be done this way -> else we would overwrite other modifications done to data meanwhile!
-    private void saveSecure() {
-        final var temp = PrismaAPI.getSurvivalHandler().fetchHazel(player.getUniqueId());
-        if (temp.isPresent()) {
-            final SurvivalPlayer newPlayer = temp.get();
-            newPlayer.homes(this.data.homes());
-            PrismaAPI.getSurvivalHandler().updateHazel(newPlayer);
-        }
     }
 
     @Override
     public void handleInventoryOpenEvent(final InventoryOpenEvent event) {
-        new PrismaSound(Sound.ITEM_TRIDENT_RETURN, 2, 0.2f).playToIndividual(player);
+        new PrismaSound(Sound.ITEM_TRIDENT_RETURN, 2, 0.2f).play(player);
         CompletableFuture.runAsync(() -> {
-            fillGui(SimpleMenuItem.BLACK_PANE.get());
+            fillGui(SimpleMenuItem.BLACK.item());
 
             //go back
-            addButton(40, new Button(new ItemBuilder(Material.BARRIER).name(LangKey.MENU_ITEM_BACK_TITLE.translate(language)).build())
-                    .setClickEventConsumer(e -> new EditHomeMenu(player, data, home, language).open()));
+            addButton(40, new Button(Items.createItem(Material.BARRIER, ic ->
+                    ic.name(LangKey.MENU_ITEM_BACK_TITLE.translate(config))))
+                    .clickAction(e -> new EditHomeMenu(player, plugin, data, home).open()));
 
             registerPagination();
             pagination.update();
@@ -138,5 +134,9 @@ public final class ChangeIconMenu extends PrismaInventory {
             });
             addButton(42, new Button(skull));
         }
+    }
+
+    private void saveSecure() {
+        this.plugin.getStorageHandler().save(this.data);
     }
 }
