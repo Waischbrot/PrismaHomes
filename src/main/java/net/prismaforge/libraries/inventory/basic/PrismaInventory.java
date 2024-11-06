@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 public abstract class PrismaInventory implements InventoryHolder {
     final String id;
     final InventoryType inventoryType;
-    final Player player;
+    public final Player player;
     final Map<Integer, Button> buttons;
     final List<BukkitTask> taskList;
     Inventory inventory;
