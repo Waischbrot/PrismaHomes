@@ -5,13 +5,17 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import lombok.AccessLevel;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.prismaforge.libraries.commands.annotations.Command;
 import net.prismaforge.libraries.commands.annotations.SubCommand;
 import net.prismaforge.libraries.commands.annotations.TabCompletion;
+import net.prismaforge.libraries.config.Config;
+import net.prismaforge.libraries.strings.ColorUtil;
 import net.prismaforge.prismahomes.PrismaHomes;
 import net.prismaforge.prismahomes.storage.DataHome;
+import net.prismaforge.prismahomes.storage.DataPlayer;
+import net.prismaforge.prismahomes.ui.ListHomesMenu;
+import net.prismaforge.prismahomes.utility.LangKey;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
@@ -28,10 +32,12 @@ import java.util.concurrent.TimeUnit;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class HomeCommand {
     PrismaHomes plugin;
+    Config config;
     LoadingCache<UUID, List<String>> nameCache;
 
     public HomeCommand(final PrismaHomes plugin) {
         this.plugin = plugin;
+        this.config = plugin.getConfiguration();
         this.nameCache = CacheBuilder.newBuilder() //build loading cache for insane fast tabcompletion
                 .maximumSize(100)
                 .expireAfterWrite(1, TimeUnit.MINUTES)
@@ -39,9 +45,7 @@ public final class HomeCommand {
                     @Override
                     @NonNull
                     public List<String> load(final UUID key) throws Exception {
-                        final var temp = PrismaAPI.getSurvivalHandler().fetchHazel(key);
-                        if (temp.isEmpty()) return Collections.emptyList();
-                        final SurvivalPlayer data = temp.get();
+                        final DataPlayer data = plugin.getStorageHandler().get(key);
                         final List<String> homeKeys = new ArrayList<>();
                         data.homes().forEach(dataHome -> homeKeys.add(dataHome.key()));
                         return homeKeys;
@@ -52,30 +56,15 @@ public final class HomeCommand {
     @SubCommand()
     public void onDefault(final CommandSender sender, final String[] args) {
         if (!(sender instanceof final Player player)) return; //check if this is a player
-
-        //load data
-        final var temp = PrismaAPI.getSurvivalHandler().fetchHazel(player.getUniqueId());
-        if (temp.isEmpty()) {
-            MessageUtil.message(player, LangKey.DATA_ERROR, LangKey.PREFIX_SURVIVAL, s -> s.replaceAll("%player%", player.getName()));
-            return;
-        }
-        final SurvivalPlayer data = temp.get();
-
-        new ListHomesMenu(player, data, PlayerUtil.getLanguage(player.getUniqueId())).open();
+        final DataPlayer data = plugin.getStorageHandler().get(player.getUniqueId());
+        new ListHomesMenu(player, plugin, data).open();
     }
 
     @SubCommand(args = {"%names%"})
     public void onDirectHome(final CommandSender sender, final String[] args) {
         if (!(sender instanceof final Player player)) return;
         final String target = args[0];
-
-        //load data
-        final var temp = PrismaAPI.getSurvivalHandler().fetchHazel(player.getUniqueId());
-        if (temp.isEmpty()) {
-            MessageUtil.message(player, LangKey.DATA_ERROR, LangKey.PREFIX_SURVIVAL, s -> s.replaceAll("%player%", player.getName()));
-            return;
-        }
-        final SurvivalPlayer data = temp.get();
+        final DataPlayer data = plugin.getStorageHandler().get(player.getUniqueId());
 
         //loop through homes
         for (final DataHome home : data.homes()) {
@@ -84,7 +73,8 @@ public final class HomeCommand {
                 return;
             }
         }
-        MessageUtil.message(player, LangKey.HOMES_NO_HOME_FOUND, LangKey.PREFIX_HOMES);
+
+        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_NO_HOME_FOUND.translate(config)));
     }
 
     @TabCompletion(name = "names")

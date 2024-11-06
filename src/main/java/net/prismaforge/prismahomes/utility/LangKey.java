@@ -58,8 +58,7 @@ public enum LangKey {
     HOMES_ENTER_NEW_NAME("survival.core.homes.enter-new-name", "<gray>Gib den neuen Namen in den Chat ein. Du kannst dabei auch <rainbow>Farbcodes</rainbow> <gray>nutzen!"),
     HOMES_RENAME_SUCCESS("survival.core.homes.rename-success", "<gray>Du hast dieses Home <green>erfolgreich <gray>umbenannt!"),
 
-    COMMAND_NOT_AVAILABLE("survival.core.command-not-available", "<red>Dieser Befehl existiert nicht oder ist nicht für dich verfügbar!"),
-    DATA_ERROR("survival.core.error-loading-data", "<red>Es wurde kein Datenpaket für <yellow>%player% <red>bereitgestellt. Bitte melde diesen Fehler unverzüglich einem Teammitglied!");
+    COMMAND_NOT_AVAILABLE("survival.core.command-not-available", "<red>Dieser Befehl existiert nicht oder ist nicht für dich verfügbar!");
 
     private final String key;
     private final String defaultValue;
