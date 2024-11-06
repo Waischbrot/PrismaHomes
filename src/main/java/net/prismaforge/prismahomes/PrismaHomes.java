@@ -10,6 +10,7 @@ import net.prismaforge.prismahomes.commands.HomeCommand;
 import net.prismaforge.prismahomes.commands.SetHomeCommand;
 import net.prismaforge.prismahomes.listener.ChatListener;
 import net.prismaforge.prismahomes.storage.StorageHandler;
+import net.prismaforge.prismahomes.utility.LangKey;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -23,15 +24,22 @@ public final class PrismaHomes extends JavaPlugin {
     public void onEnable() {
         PrismaLib.initialize(this);
 
+        this.configuration = new Config("config", this);
+        this.storageHandler = new StorageHandler(this);
+
         CommandRegister.register(
                 new HomeCommand(this),
                 new SetHomeCommand(this)
         );
 
-        this.configuration = new Config("config", this);
-        this.storageHandler = new StorageHandler(this);
-
         Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
+
+        //initialize all lang keys to config once!
+        if (!configuration.contains("messages.prefix.homes")) {
+            for (final LangKey langKey : LangKey.values()) {
+                langKey.translate(configuration);
+            }
+        }
     }
 
     @Override

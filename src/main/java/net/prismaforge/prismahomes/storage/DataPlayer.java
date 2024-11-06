@@ -37,7 +37,7 @@ public final class DataPlayer {
             config.setField("uuid", uuid.toString());
             config.setField("homes", List.of());
         }
-        return new DataPlayer(config);
+        return new DataPlayer(config, uuid);
     }
 
     public void saveToConfig(final Config config) {

@@ -2,7 +2,6 @@ package net.prismaforge.prismahomes.commands;
 
 import lombok.AccessLevel;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.prismaforge.libraries.commands.annotations.Command;
 import net.prismaforge.libraries.commands.annotations.SubCommand;
@@ -40,21 +39,21 @@ public final class SetHomeCommand {
         //check if has slots
         final int slots = SlotsUtil.availableSlots(player);
         if (data.homes().size() >= slots) {
-            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_NO_SLOTS.translate(config)));
+            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.ERROR_NO_SLOTS.translate(config)));
             return;
         }
 
         final String key = args[0];
         //check if name meets naming conventions (azAZ09-)
         if (!key.matches("^[A-Za-z0-9_.]+$") || key.length() > 20) {
-            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_INVALID_NAME.translate(config)));
+            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.ERROR_INVALID_NAME.translate(config)));
             return;
         }
 
         //check if already has a home with this name
         for (final DataHome home : data.homes()) {
             if (key.equalsIgnoreCase(home.key())) {
-                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_HOME_ALREADY_PRESENT.translate(config)));
+                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.ERROR_DUPLICATE_HOME.translate(config)));
                 return;
             }
         }
@@ -63,7 +62,7 @@ public final class SetHomeCommand {
         final Location location = player.getLocation();
         final DataHome home = new DataHome(key, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         CompletableFuture.runAsync(() -> {
-            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_NEW_HOME_CREATED.translate(config, s -> s.replaceAll("%name%", home.displayName()))));
+            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.SUCCESS_NEW_HOME.translate(config, s -> s.replaceAll("%name%", home.displayName()))));
             data.homes().add(home);
             saveSecure(data);
         });

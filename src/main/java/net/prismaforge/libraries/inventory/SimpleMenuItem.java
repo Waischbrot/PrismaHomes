@@ -35,6 +35,6 @@ public enum SimpleMenuItem {
     ItemStack item;
 
     SimpleMenuItem(final Material material) {
-        this.item = Items.createItem(material, itemCreator -> {});
+        this.item = Items.createItem(material, itemCreator -> itemCreator.name("&7"));
     }
 }

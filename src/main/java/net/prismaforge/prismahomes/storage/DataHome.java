@@ -28,7 +28,7 @@ public final class DataHome implements Serializable {
 
     public DataHome(String key, String world, double x, double y, double z, float yaw, float pitch) {
         this.key = key;
-        this.displayName = "<yellow>" + key;
+        this.displayName = "&e" + key;
         this.material = "CAMPFIRE";
         this.world = world;
         this.x = x;

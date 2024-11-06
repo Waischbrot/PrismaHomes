@@ -33,7 +33,7 @@ public final class EditHomeMenu extends PrismaInventory {
     DataHome home;
 
     public EditHomeMenu(Player player, PrismaHomes plugin, DataPlayer data, DataHome home) {
-        super(player, "edit_homes", LangKey.MENU_EDITHOME_TITLE.translate(plugin.getConfiguration()), 3);
+        super(player, "edit_homes", LangKey.MENU_EDIT_TITLE.translate(plugin.getConfiguration()), 3);
         this.plugin = plugin;
         this.config = plugin.getConfiguration();
         this.data = data;
@@ -48,8 +48,8 @@ public final class EditHomeMenu extends PrismaInventory {
 
             //icon with home information
             addButton(4, Items.createItem(Material.getMaterial(home.material()), ic -> {
-                ic.name(LangKey.MENU_ITEM_EDITICON_TITLE.translate(config, s -> s.replaceAll("%name%", home.displayName())));
-                ic.lore(LangKey.MENU_ITEM_EDITICON_LORE.translateList(config, s ->
+                ic.name(LangKey.MENU_EDIT_ICON_TITLE.translate(config, s -> s.replaceAll("%name%", home.displayName())));
+                ic.lore(LangKey.MENU_EDIT_ICON_LORE.translateList(config, s ->
                         s.replaceAll("%world%", home.world())
                                 .replaceAll("%key%", home.key())
                                 .replaceAll("%x%", NumberFormat.twoDecimals(home.x()))
@@ -61,13 +61,13 @@ public final class EditHomeMenu extends PrismaInventory {
 
             //go back
             addButton(22, new Button(Items.createItem(Material.BARRIER, ic -> {
-                ic.name(LangKey.MENU_ITEM_BACK_TITLE.translate(config));
+                ic.name(LangKey.MENU_BACK_TITLE.translate(config));
             })).clickAction(e -> new ListHomesMenu(player, plugin, data).open()));
 
             //set location here
             addButton(10, new Button(Items.createItem(Material.ENDER_PEARL, ic -> {
-                ic.name(LangKey.MENU_ITEM_SETHERE_TITLE.translate(config));
-                ic.lore(LangKey.MENU_ITEM_SETHERE_LORE.translateList(config));
+                ic.name(LangKey.MENU_SETPOINT_TITLE.translate(config));
+                ic.lore(LangKey.MENU_SETPOINT_LORE.translateList(config));
             })).clickAction(e -> {
                 final Location location = player.getLocation();
                 this.home.world(location.getWorld().getName())
@@ -75,47 +75,47 @@ public final class EditHomeMenu extends PrismaInventory {
                         .yaw(location.getYaw()).pitch(location.getPitch());
                 new ListHomesMenu(player, plugin, data).open();
                 new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).play(player);
-                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_CHANGED_LOCATION.translate(config)));
+                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.SUCCESS_LOCATION_CHANGED.translate(config)));
                 saveSecure();
             }));
 
             //change displayname
             addButton(12, new Button(Items.createItem(Material.NAME_TAG, ic -> {
-                ic.name(LangKey.MENU_ITEM_RENAME_TITLE.translate(config));
-                ic.lore(LangKey.MENU_ITEM_RENAME_LORE.translateList(config));
+                ic.name(LangKey.MENU_RENAME_TITLE.translate(config));
+                ic.lore(LangKey.MENU_RENAME_LORE.translateList(config));
             })).clickAction(e -> {
                 ChatListener.addTask(player, input -> {
                     if (input.length() <= 40) {
                         home.displayName(input);
-                        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_RENAME_SUCCESS.translate(config)));
+                        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.SUCCESS_RENAME.translate(config)));
                         new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).play(player);
                         saveSecure();
                     } else {
                         new PrismaSound(Sound.BLOCK_ANVIL_USE, 2, 0.2f).play(player);
-                        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_RENAME_INPUT_TOO_LONG.translate(config)));
+                        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.ERROR_NAME_TOO_LONG.translate(config)));
                     }
                     new Scheduler(plugin, false).run(() -> new EditHomeMenu(player, plugin, data, home).open());
                 });
-                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_ENTER_NEW_NAME.translate(config)));
+                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.PROMPT_NEW_NAME.translate(config)));
                 player.closeInventory();
             }));
 
             //change icon
             addButton(14, new Button(Items.createItem(Material.WHITE_WOOL, ic -> {
-                ic.name(LangKey.MENU_ITEM_SETICON_TITLE.translate(config));
-                ic.lore(LangKey.MENU_ITEM_SETICON_LORE.translateList(config));
+                ic.name(LangKey.MENU_CHANGE_ITEM_TITLE.translate(config));
+                ic.lore(LangKey.MENU_CHANGE_ITEM_LORE.translateList(config));
             })).clickAction(e -> new ChangeIconMenu(player, plugin, data, home).open()));
 
             //delete home and return to home list
             addButton(16, new Button(Items.createSkull(sc -> {
                 sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmUwZmQxMDE5OWU4ZTRmY2RhYmNhZTRmODVjODU5MTgxMjdhN2M1NTUzYWQyMzVmMDFjNTZkMThiYjk0NzBkMyJ9fX0=");
-                sc.name(LangKey.MENU_ITEM_DELHOME_TITLE.translate(config));
-                sc.lore(LangKey.MENU_ITEM_DELHOME_LORE.translateList(config));
+                sc.name(LangKey.MENU_DELETE_TITLE.translate(config));
+                sc.lore(LangKey.MENU_DELETE_LORE.translateList(config));
             })).clickAction(e -> {
                 this.data.homes().remove(home); //remove home from list
                 new ListHomesMenu(player, plugin, data).open();
                 new PrismaSound(Sound.BLOCK_ANVIL_USE, 2, 0.2f).play(player);
-                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_DELETED_HOME.translate(config)));
+                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.SUCCESS_HOME_DELETED.translate(config)));
                 saveSecure();
             }));
         });

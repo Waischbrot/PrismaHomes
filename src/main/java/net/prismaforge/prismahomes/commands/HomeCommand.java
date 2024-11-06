@@ -74,7 +74,7 @@ public final class HomeCommand {
             }
         }
 
-        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_NO_HOME_FOUND.translate(config)));
+        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.ERROR_NO_HOME.translate(config)));
     }
 
     @TabCompletion(name = "names")
