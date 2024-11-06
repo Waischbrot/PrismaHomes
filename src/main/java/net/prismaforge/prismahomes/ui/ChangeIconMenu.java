@@ -1,23 +1,18 @@
 package net.prismaforge.prismahomes.ui;
 
-import de.prismamc.corelibrary.inventory.SimpleMenuItem;
-import de.prismamc.corelibrary.inventory.basic.Button;
-import de.prismamc.corelibrary.inventory.basic.PrismaInventory;
-import de.prismamc.corelibrary.inventory.pagemenu.PageHandler;
-import de.prismamc.corelibrary.items.ItemBuilder;
-import de.prismamc.corelibrary.items.SkullBuilder;
-import de.prismamc.corelibrary.wrapper.messaging.PrismaSound;
-import de.prismamc.datamanagement.PrismaAPI;
-import de.prismamc.datamanagement.backendplayer.PrismaLanguage;
-import de.prismamc.datamanagement.survival.player.DataHome;
-import de.prismamc.datamanagement.survival.player.SurvivalPlayer;
-import de.prismamc.survivalcore.language.LangKey;
-import de.prismamc.survivalcore.util.MessageUtil;
+import net.prismaforge.libraries.inventory.basic.Button;
+import net.prismaforge.libraries.inventory.basic.PrismaInventory;
+import net.prismaforge.libraries.inventory.paged.Pagination;
+import net.prismaforge.libraries.items.Items;
+import net.prismaforge.prismahomes.storage.DataHome;
+import net.prismaforge.prismahomes.storage.DataPlayer;
+import net.prismaforge.prismahomes.utility.LangKey;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -43,9 +38,9 @@ public final class ChangeIconMenu extends PrismaInventory {
     }
 
     private final PrismaLanguage language;
-    private final SurvivalPlayer data;
+    private final DataPlayer data;
     private final DataHome home;
-    private final PageHandler pagination;
+    private final Pagination pagination;
 
     public ChangeIconMenu(final Player player, final SurvivalPlayer data, final DataHome home, final PrismaLanguage language) {
         super(player, "change_icon_homes", LangKey.MENU_CHANGEICON_TITLE.translate(language), 5);
@@ -76,7 +71,7 @@ public final class ChangeIconMenu extends PrismaInventory {
         this.home.material(material.toString());
         new EditHomeMenu(player, data, home, language).open();
         new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).playToIndividual(player);
-        MessageUtil.message(player, LangKey.HOMES_CHANGED_MATERIAL, LangKey.PREFIX_HOMES);
+        MessageUtil.message(player, LangKey.HOMES_CHANGED_MATERIAL, LangKey.PREFIX);
         saveSecure();
     }
 
@@ -108,34 +103,39 @@ public final class ChangeIconMenu extends PrismaInventory {
 
     private void placePageButtons() {
         if (!pagination.isFirstPage()) {
-            addButton(38, new Button(new SkullBuilder()
-                    .texture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmQ2OWUwNmU1ZGFkZmQ4NGU1ZjNkMWMyMTA2M2YyNTUzYjJmYTk0NWVlMWQ0ZDcxNTJmZGM1NDI1YmMxMmE5In19fQ==")
-                    .name(LangKey.MENU_ITEM_PREVIOUS_PAGE_TITLE.translate(language))
-                    .build())
-                    .setClickEventConsumer(e -> {
+            final ItemStack skull = Items.createSkull(sc -> {
+                sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmQ2OWUwNmU1ZGFkZmQ4NGU1ZjNkMWMyMTA2M2YyNTUzYjJmYTk0NWVlMWQ0ZDcxNTJmZGM1NDI1YmMxMmE5In19fQ==");
+                sc.name(LangKey.MENU_ITEM_PREVIOUS_PAGE_TITLE.translate(config));
+            });
+            addButton(38, new Button(skull)
+                    .clickAction(e -> {
                         pagination.previousPage().update();
                         placePageButtons();
                     }));
         } else {
-            addButton(38, new SkullBuilder()
-                    .texture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjZkYWI3MjcxZjRmZjA0ZDU0NDAyMTkwNjdhMTA5YjVjMGMxZDFlMDFlYzYwMmMwMDIwNDc2ZjdlYjYxMjE4MCJ9fX0=")
-                    .name(LangKey.MENU_ITEM_NO_PREVIOUS_PAGE_TITLE.translate(language))
-                    .build());
+            final ItemStack skull = Items.createSkull(sc -> {
+                sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjZkYWI3MjcxZjRmZjA0ZDU0NDAyMTkwNjdhMTA5YjVjMGMxZDFlMDFlYzYwMmMwMDIwNDc2ZjdlYjYxMjE4MCJ9fX0=");
+                sc.name(LangKey.MENU_ITEM_NO_PREVIOUS_PAGE_TITLE.translate(config));
+            });
+            addButton(38, new Button(skull));
         }
+
         if (!pagination.isLastPage()) {
-            addButton(42, new Button(new SkullBuilder()
-                    .texture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTliZjMyOTJlMTI2YTEwNWI1NGViYTcxM2FhMWIxNTJkNTQxYTFkODkzODgyOWM1NjM2NGQxNzhlZDIyYmYifX19")
-                    .name(LangKey.MENU_ITEM_NEXT_PAGE_TITLE.translate(language))
-                    .build())
-                    .setClickEventConsumer(e -> {
+            final ItemStack skull = Items.createSkull(sc -> {
+                sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTliZjMyOTJlMTI2YTEwNWI1NGViYTcxM2FhMWIxNTJkNTQxYTFkODkzODgyOWM1NjM2NGQxNzhlZDIyYmYifX19");
+                sc.name(LangKey.MENU_ITEM_NEXT_PAGE_TITLE.translate(config));
+            });
+            addButton(42, new Button(skull)
+                    .clickAction(e -> {
                         pagination.nextPage().update();
                         placePageButtons();
                     }));
         } else {
-            addButton(42, new SkullBuilder()
-                    .texture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGFhMTg3ZmVkZTg4ZGUwMDJjYmQ5MzA1NzVlYjdiYTQ4ZDNiMWEwNmQ5NjFiZGM1MzU4MDA3NTBhZjc2NDkyNiJ9fX0=")
-                    .name(LangKey.MENU_ITEM_NO_NEXT_PAGE_TITLE.translate(language))
-                    .build());
+            final ItemStack skull = Items.createSkull(sc -> {
+                sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGFhMTg3ZmVkZTg4ZGUwMDJjYmQ5MzA1NzVlYjdiYTQ4ZDNiMWEwNmQ5NjFiZGM1MzU4MDA3NTBhZjc2NDkyNiJ9fX0=");
+                sc.name(LangKey.MENU_ITEM_NO_NEXT_PAGE_TITLE.translate(config));
+            });
+            addButton(42, new Button(skull));
         }
     }
 }

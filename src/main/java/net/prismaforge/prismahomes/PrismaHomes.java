@@ -27,7 +27,7 @@ public final class PrismaHomes extends JavaPlugin {
         );
 
         this.configuration = new Config("config", this);
-        this.storageHandler = new StorageHandler();
+        this.storageHandler = new StorageHandler(this);
     }
 
     @Override

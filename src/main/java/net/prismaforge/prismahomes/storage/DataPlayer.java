@@ -22,11 +22,11 @@ public final class DataPlayer {
         this.homes = new ArrayList<>();
     }
 
-    private DataPlayer(final Config config) {
-        this.uuid = UUID.fromString(config.getConfigField("uuid"));
+    private DataPlayer(final Config config, final UUID uuid) {
+        this.uuid = uuid;
         this.homes = new ArrayList<>();
-        final List<String> homes = config.getConfigField("homes");
-        for (final String home : homes) {
+        final List<String> sHomes = config.getConfigField("homes");
+        for (final String home : sHomes) {
             DataHome.deserialize(home).ifPresent(this.homes::add);
         }
     }
@@ -38,6 +38,15 @@ public final class DataPlayer {
             config.setField("homes", List.of());
         }
         return new DataPlayer(config);
+    }
+
+    public void saveToConfig(final Config config) {
+        config.setField("uuid", uuid.toString());
+        final List<String> sHomes = new ArrayList<>();
+        for (final DataHome home : this.homes) {
+            sHomes.add(home.serialize());
+        }
+        config.setField("homes", sHomes);
     }
 
     @NonNull

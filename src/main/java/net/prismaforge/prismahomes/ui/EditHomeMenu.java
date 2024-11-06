@@ -1,6 +1,19 @@
 package net.prismaforge.prismahomes.ui;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import net.prismaforge.libraries.config.Config;
+import net.prismaforge.libraries.inventory.SimpleMenuItem;
+import net.prismaforge.libraries.inventory.basic.Button;
+import net.prismaforge.libraries.inventory.basic.PrismaInventory;
+import net.prismaforge.libraries.items.Items;
+import net.prismaforge.libraries.strings.ColorUtil;
+import net.prismaforge.libraries.strings.NumberFormat;
+import net.prismaforge.libraries.wrapper.PrismaSound;
+import net.prismaforge.prismahomes.PrismaHomes;
 import net.prismaforge.prismahomes.storage.DataHome;
+import net.prismaforge.prismahomes.storage.DataPlayer;
+import net.prismaforge.prismahomes.utility.LangKey;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -10,58 +23,59 @@ import org.bukkit.inventory.ItemFlag;
 
 import java.util.concurrent.CompletableFuture;
 
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class EditHomeMenu extends PrismaInventory {
-    private final PrismaLanguage language;
-    private final SurvivalPlayer data;
-    private final DataHome home;
+    PrismaHomes plugin;
+    Config config;
+    DataPlayer data;
+    DataHome home;
 
-    public EditHomeMenu(final Player player, final SurvivalPlayer data, final DataHome home, final PrismaLanguage language) {
-        super(player, "edit_homes", LangKey.MENU_EDITHOME_TITLE.translate(language), 3);
+    public EditHomeMenu(Player player, PrismaHomes plugin, DataPlayer data, DataHome home) {
+        super(player, "edit_homes", LangKey.MENU_EDITHOME_TITLE.translate(plugin.getConfiguration()), 3);
+        this.plugin = plugin;
+        this.config = plugin.getConfiguration();
         this.data = data;
-        this.language = language;
         this.home = home;
     }
 
     @Override
     public void handleInventoryOpenEvent(final InventoryOpenEvent event) {
-        new PrismaSound(Sound.ITEM_TRIDENT_RETURN, 2, 0.2f).playToIndividual(player);
+        new PrismaSound(Sound.ITEM_TRIDENT_RETURN, 2, 0.2f).play(player);
         CompletableFuture.runAsync(() -> {
-            fillGui(SimpleMenuItem.BLACK_PANE.get());
+            fillGui(SimpleMenuItem.BLACK.item());
 
             //icon with home information
-            final ItemBuilder builder = new ItemBuilder(Material.valueOf(home.material()));
-            builder.name(LangKey.MENU_ITEM_EDITICON_TITLE.translate(language, s ->
-                    s.replaceAll("%name%", home.displayName())));
-            builder.stringLores(LangKey.MENU_ITEM_EDITICON_LORE.translateList(language, s ->
-                    s.replaceAll("%world%", HomeUtil.prettyName(home.world(), language))
-                            .replaceAll("%key%", home.key())
-                            .replaceAll("%x%", ValueFormatter.formatTwoDecimals(home.x()))
-                            .replaceAll("%y%", ValueFormatter.formatTwoDecimals(home.y()))
-                            .replaceAll("%z%", ValueFormatter.formatTwoDecimals(home.z()))
-            ));
-            //add all itemflags to prevent weird displays!
-            for (final ItemFlag itemFlag : ItemFlag.values()) {
-                builder.addItemFlags(itemFlag);
-            }
-            addButton(4, builder.build());
+            addButton(4, Items.createItem(Material.getMaterial(home.material()), ic -> {
+                ic.name(LangKey.MENU_ITEM_EDITICON_TITLE.translate(config, s -> s.replaceAll("%name%", home.displayName())));
+                ic.lore(LangKey.MENU_ITEM_EDITICON_LORE.translateList(config, s ->
+                        s.replaceAll("%world%", home.world())
+                                .replaceAll("%key%", home.key())
+                                .replaceAll("%x%", NumberFormat.twoDecimals(home.x()))
+                                .replaceAll("%y%", NumberFormat.twoDecimals(home.y()))
+                                .replaceAll("%z%", NumberFormat.twoDecimals(home.z()))
+                ));
+                ic.flag(ItemFlag.values());
+            }));
 
             //go back
-            addButton(22, new Button(new ItemBuilder(Material.BARRIER).name(LangKey.MENU_ITEM_BACK_TITLE.translate(language)).build())
-                    .setClickEventConsumer(e -> new ListHomesMenu(player, data, language, home.key()).open()));
+            addButton(22, new Button(Items.createItem(Material.BARRIER, ic -> {
+                ic.name(LangKey.MENU_ITEM_BACK_TITLE.translate(config));
+            })).clickAction(e -> new ListHomesMenu(player, plugin, data).open()));
 
             //set location here
-            addButton(10, new Button(new ItemBuilder(Material.ENDER_PEARL).name(LangKey.MENU_ITEM_SETHERE_TITLE.translate(language))
-                    .stringLores(LangKey.MENU_ITEM_SETHERE_LORE.translateList(language)).build())
-                    .setClickEventConsumer(e -> {
-                        final Location location = player.getLocation();
-                        this.home.world(location.getWorld().getName())
-                                .x(location.x()).y(location.y()).z(location.z())
-                                .yaw(location.getYaw()).pitch(location.getPitch());
-                        new ListHomesMenu(player, data, language, home.key()).open();
-                        new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).playToIndividual(player);
-                        MessageUtil.message(player, LangKey.HOMES_CHANGED_LOCATION, LangKey.PREFIX_HOMES);
-                        saveSecure();
-                    }));
+            addButton(10, new Button(Items.createItem(Material.ENDER_PEARL, ic -> {
+                ic.name(LangKey.MENU_ITEM_SETHERE_TITLE.translate(config));
+                ic.lore(LangKey.MENU_ITEM_SETHERE_LORE.translateList(config));
+            })).clickAction(e -> {
+                final Location location = player.getLocation();
+                this.home.world(location.getWorld().getName())
+                        .x(location.x()).y(location.y()).z(location.z())
+                        .yaw(location.getYaw()).pitch(location.getPitch());
+                new ListHomesMenu(player, plugin, data).open();
+                new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).play(player);
+                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.HOMES_CHANGED_LOCATION.translate(config)));
+                saveSecure();
+            }));
 
             //change displayname
             addButton(12, new Button(new ItemBuilder(Material.NAME_TAG).name(LangKey.MENU_ITEM_RENAME_TITLE.translate(language))
@@ -102,13 +116,7 @@ public final class EditHomeMenu extends PrismaInventory {
         });
     }
 
-    //has to be done this way -> else we would overwrite other modifications done to data meanwhile!
     private void saveSecure() {
-        final var temp = PrismaAPI.getSurvivalHandler().fetchHazel(player.getUniqueId());
-        if (temp.isPresent()) {
-            final SurvivalPlayer newPlayer = temp.get();
-            newPlayer.homes(this.data.homes());
-            PrismaAPI.getSurvivalHandler().updateHazel(newPlayer);
-        }
+        this.plugin.getStorageHandler().save(this.data);
     }
 }

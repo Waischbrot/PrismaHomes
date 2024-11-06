@@ -26,15 +26,15 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.concurrent.CompletableFuture;
 
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class ListHomesMenu extends PrismaInventory {
-    final DataPlayer data;
-    final PrismaHomes plugin;
-    final Config config;
-    final Pagination pagination;
-    final int slots;
+    PrismaHomes plugin;
+    Config config;
+    DataPlayer data;
+    Pagination pagination;
+    int slots;
 
-    public ListHomesMenu(final Player player, final PrismaHomes plugin, final DataPlayer data) {
+    public ListHomesMenu(Player player, PrismaHomes plugin, DataPlayer data) {
         super(player, "list_homes", LangKey.MENU_HOMES_TITLE.translate(plugin.getConfiguration()), 5);
         this.data = data;
         this.plugin = plugin;
