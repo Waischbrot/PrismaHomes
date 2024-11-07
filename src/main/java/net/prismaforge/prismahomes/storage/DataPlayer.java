@@ -64,7 +64,9 @@ public final class DataPlayer {
 
     public void saveToConfig(final Config config) {
         config.setField("uuid", uuid.toString());
-        config.clean("homes"); //delete old homes and overwrite clean!
+        if (config.contains("homes")) {
+            config.clean("homes"); //delete old homes and overwrite clean!
+        }
         for (final DataHome home : this.homes) {
             final String prefix = "homes." + home.key() + ".";
             config.setField(prefix + "display-name", home.displayName());
