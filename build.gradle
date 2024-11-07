@@ -34,7 +34,6 @@ java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))
     targetCompatibility = JavaVersion.VERSION_21
     sourceCompatibility = JavaVersion.VERSION_21
-    withSourcesJar()
 }
 
 compileJava {
