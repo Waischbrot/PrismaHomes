@@ -48,9 +48,9 @@ public final class DataPlayer {
             final String world = config.getConfigField(prefix + "world");
 
             // Retrieve as Double and cast to double (primitive)
-            final double x = config.getConfigField(prefix + "x");
-            final double y = config.getConfigField(prefix + "y");
-            final double z = config.getConfigField(prefix + "z");
+            final double x = config.getConfigField(prefix + "x", 0.0);
+            final double y = config.getConfigField(prefix + "y", 0.0);
+            final double z = config.getConfigField(prefix + "z", 0.0);
 
             // Retrieve as Double and convert to Float
             final float yaw = ((Number) config.getConfigField(prefix + "yaw", 0.0)).floatValue();
@@ -64,7 +64,9 @@ public final class DataPlayer {
 
     public void saveToConfig(final Config config) {
         config.setField("uuid", uuid.toString());
-        config.clean("homes"); //delete old homes and overwrite clean!
+        if (config.contains("homes")) {
+            config.clean("homes"); //delete old homes and overwrite clean!
+        }
         for (final DataHome home : this.homes) {
             final String prefix = "homes." + home.key() + ".";
             config.setField(prefix + "display-name", home.displayName());

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
-import net.prismaforge.libraries.config.Config;
+import net.prismaforge.prismahomes.PrismaHomes;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,24 +59,24 @@ public enum LangKey {
     private final String key;
     private final String defaultValue;
 
-    public String translate(final Config config) {
-        return config.getConfigField(key, defaultValue);
+    public String translate() {
+        return PrismaHomes.STORAGE().getMessage(key, defaultValue);
     }
 
-    public String translate(final Config config, final Function<String, String> modifier) {
-        String result = translate(config);
+    public String translate(final Function<String, String> modifier) {
+        String result = translate();
         result = modifier.apply(result);
         return result;
     }
 
     @NonNull
-    public List<String> translateList(final Config config) {
-        return translateList(config, s -> s);
+    public List<String> translateList() {
+        return translateList(s -> s);
     }
 
     @NonNull
-    public List<String> translateList(final Config config, final Function<String, String> modifier) {
-        String result = translate(config); //translation
+    public List<String> translateList(final Function<String, String> modifier) {
+        String result = translate(); //translation
         result = modifier.apply(result); //transform string
         final List<String> transformed = new ArrayList<>(); //create empty list
         Collections.addAll(transformed, result.split("\n")); //split into different lines

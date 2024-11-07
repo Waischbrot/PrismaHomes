@@ -2,7 +2,6 @@ package net.prismaforge.prismahomes.ui;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import net.prismaforge.libraries.config.Config;
 import net.prismaforge.libraries.inventory.SimpleMenuItem;
 import net.prismaforge.libraries.inventory.basic.Button;
 import net.prismaforge.libraries.inventory.basic.PrismaInventory;
@@ -46,15 +45,13 @@ public final class ChangeIconMenu extends PrismaInventory {
     }
 
     PrismaHomes plugin;
-    Config config;
     DataPlayer data;
     DataHome home;
     Pagination pagination;
 
     public ChangeIconMenu(Player player, PrismaHomes plugin, DataPlayer data, DataHome home) {
-        super(player, "change_icon_homes", LangKey.MENU_CHANGE_ICON_TITLE.translate(plugin.getConfiguration()), 5);
+        super(player, "change_icon_homes", LangKey.MENU_CHANGE_ICON_TITLE.translate(), 5);
         this.plugin = plugin;
-        this.config = plugin.getConfiguration();
         this.data = data;
         this.home = home;
         this.pagination = new Pagination(this);
@@ -66,8 +63,8 @@ public final class ChangeIconMenu extends PrismaInventory {
     private void registerPagination() {
         for (final Material material : MATERIALS) {
             this.pagination.addButton(new Button(Items.createItem(material, ic -> {
-                ic.name(LangKey.MENU_MATERIAL_TITLE.translate(config));
-                ic.lore(LangKey.MENU_MATERIAL_LORE.translateList(config));
+                ic.name(LangKey.MENU_MATERIAL_TITLE.translate());
+                ic.lore(LangKey.MENU_MATERIAL_LORE.translateList());
                 ic.flag(ItemFlag.values());
             })).clickAction(e -> equipMaterial(material)));
         }
@@ -77,7 +74,7 @@ public final class ChangeIconMenu extends PrismaInventory {
         this.home.material(material.toString());
         new EditHomeMenu(player, plugin, data, home).open();
         new PrismaSound(Sound.ENTITY_PLAYER_LEVELUP, 2, 0.2f).play(player);
-        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.SUCCESS_MATERIAL_CHANGED.translate(config)));
+        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate() + LangKey.SUCCESS_MATERIAL_CHANGED.translate()));
         saveSecure();
     }
 
@@ -89,7 +86,7 @@ public final class ChangeIconMenu extends PrismaInventory {
 
             //go back
             addButton(40, new Button(Items.createItem(Material.BARRIER, ic ->
-                    ic.name(LangKey.MENU_BACK_TITLE.translate(config))))
+                    ic.name(LangKey.MENU_BACK_TITLE.translate())))
                     .clickAction(e -> new EditHomeMenu(player, plugin, data, home).open()));
 
             registerPagination();
@@ -102,7 +99,7 @@ public final class ChangeIconMenu extends PrismaInventory {
         if (!pagination.isFirstPage()) {
             final ItemStack skull = Items.createSkull(sc -> {
                 sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYmQ2OWUwNmU1ZGFkZmQ4NGU1ZjNkMWMyMTA2M2YyNTUzYjJmYTk0NWVlMWQ0ZDcxNTJmZGM1NDI1YmMxMmE5In19fQ==");
-                sc.name(LangKey.MENU_PREV_PAGE.translate(config));
+                sc.name(LangKey.MENU_PREV_PAGE.translate());
             });
             addButton(38, new Button(skull)
                     .clickAction(e -> {
@@ -112,7 +109,7 @@ public final class ChangeIconMenu extends PrismaInventory {
         } else {
             final ItemStack skull = Items.createSkull(sc -> {
                 sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZjZkYWI3MjcxZjRmZjA0ZDU0NDAyMTkwNjdhMTA5YjVjMGMxZDFlMDFlYzYwMmMwMDIwNDc2ZjdlYjYxMjE4MCJ9fX0=");
-                sc.name(LangKey.MENU_NO_PREV_PAGE.translate(config));
+                sc.name(LangKey.MENU_NO_PREV_PAGE.translate());
             });
             addButton(38, new Button(skull));
         }
@@ -120,7 +117,7 @@ public final class ChangeIconMenu extends PrismaInventory {
         if (!pagination.isLastPage()) {
             final ItemStack skull = Items.createSkull(sc -> {
                 sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTliZjMyOTJlMTI2YTEwNWI1NGViYTcxM2FhMWIxNTJkNTQxYTFkODkzODgyOWM1NjM2NGQxNzhlZDIyYmYifX19");
-                sc.name(LangKey.MENU_NEXT_PAGE.translate(config));
+                sc.name(LangKey.MENU_NEXT_PAGE.translate());
             });
             addButton(42, new Button(skull)
                     .clickAction(e -> {
@@ -130,13 +127,13 @@ public final class ChangeIconMenu extends PrismaInventory {
         } else {
             final ItemStack skull = Items.createSkull(sc -> {
                 sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOGFhMTg3ZmVkZTg4ZGUwMDJjYmQ5MzA1NzVlYjdiYTQ4ZDNiMWEwNmQ5NjFiZGM1MzU4MDA3NTBhZjc2NDkyNiJ9fX0=");
-                sc.name(LangKey.MENU_NO_NEXT_PAGE.translate(config));
+                sc.name(LangKey.MENU_NO_NEXT_PAGE.translate());
             });
             addButton(42, new Button(skull));
         }
     }
 
     private void saveSecure() {
-        this.plugin.getStorageHandler().save(this.data);
+        PrismaHomes.STORAGE().save(this.data);
     }
 }
