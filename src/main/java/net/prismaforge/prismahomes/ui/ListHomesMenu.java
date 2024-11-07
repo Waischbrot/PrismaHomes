@@ -2,7 +2,6 @@ package net.prismaforge.prismahomes.ui;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import net.prismaforge.libraries.config.Config;
 import net.prismaforge.libraries.inventory.SimpleMenuItem;
 import net.prismaforge.libraries.inventory.basic.Button;
 import net.prismaforge.libraries.inventory.basic.PrismaInventory;
