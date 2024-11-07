@@ -9,7 +9,6 @@ import lombok.experimental.FieldDefaults;
 import net.prismaforge.libraries.commands.annotations.Command;
 import net.prismaforge.libraries.commands.annotations.SubCommand;
 import net.prismaforge.libraries.commands.annotations.TabCompletion;
-import net.prismaforge.libraries.config.Config;
 import net.prismaforge.libraries.strings.ColorUtil;
 import net.prismaforge.prismahomes.PrismaHomes;
 import net.prismaforge.prismahomes.storage.DataHome;
@@ -32,20 +31,18 @@ import java.util.concurrent.TimeUnit;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class HomeCommand {
     PrismaHomes plugin;
-    Config config;
     LoadingCache<UUID, List<String>> nameCache;
 
     public HomeCommand(final PrismaHomes plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfiguration();
         this.nameCache = CacheBuilder.newBuilder() //build loading cache for insane fast tabcompletion
                 .maximumSize(100)
                 .expireAfterWrite(1, TimeUnit.MINUTES)
                 .build(new CacheLoader<>() {
                     @Override
                     @NonNull
-                    public List<String> load(final UUID key) throws Exception {
-                        final DataPlayer data = plugin.getStorageHandler().get(key);
+                    public List<String> load(final UUID key) {
+                        final DataPlayer data = PrismaHomes.STORAGE().get(key);
                         final List<String> homeKeys = new ArrayList<>();
                         data.homes().forEach(dataHome -> homeKeys.add(dataHome.key()));
                         return homeKeys;
@@ -56,7 +53,7 @@ public final class HomeCommand {
     @SubCommand()
     public void onDefault(final CommandSender sender, final String[] args) {
         if (!(sender instanceof final Player player)) return; //check if this is a player
-        final DataPlayer data = plugin.getStorageHandler().get(player.getUniqueId());
+        final DataPlayer data = PrismaHomes.STORAGE().get(player.getUniqueId());
         new ListHomesMenu(player, plugin, data).open();
     }
 
@@ -64,7 +61,7 @@ public final class HomeCommand {
     public void onDirectHome(final CommandSender sender, final String[] args) {
         if (!(sender instanceof final Player player)) return;
         final String target = args[0];
-        final DataPlayer data = plugin.getStorageHandler().get(player.getUniqueId());
+        final DataPlayer data = PrismaHomes.STORAGE().get(player.getUniqueId());
 
         //loop through homes
         for (final DataHome home : data.homes()) {
@@ -74,7 +71,7 @@ public final class HomeCommand {
             }
         }
 
-        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.ERROR_NO_HOME.translate(config)));
+        player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate() + LangKey.ERROR_NO_HOME.translate()));
     }
 
     @TabCompletion(name = "names")

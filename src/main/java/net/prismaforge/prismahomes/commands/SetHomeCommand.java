@@ -24,36 +24,34 @@ import java.util.concurrent.CompletableFuture;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class SetHomeCommand {
     PrismaHomes plugin;
-    Config config;
 
     public SetHomeCommand(final PrismaHomes plugin) {
         this.plugin = plugin;
-        this.config = plugin.getConfiguration();
     }
 
     @SubCommand(args = "%name%")
     public void onSetHome(final CommandSender sender, final String[] args) {
         if (!(sender instanceof final Player player)) return;
-        final DataPlayer data = plugin.getStorageHandler().get(player.getUniqueId());
+        final DataPlayer data = PrismaHomes.STORAGE().get(player.getUniqueId());
 
         //check if has slots
         final int slots = SlotsUtil.availableSlots(player);
         if (data.countHomes() >= slots) {
-            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.ERROR_NO_SLOTS.translate(config)));
+            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate() + LangKey.ERROR_NO_SLOTS.translate()));
             return;
         }
 
         final String key = args[0];
         //check if name meets naming conventions (azAZ09-)
         if (!key.matches("^[A-Za-z0-9_.]+$") || key.length() > 20) {
-            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.ERROR_INVALID_NAME.translate(config)));
+            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate() + LangKey.ERROR_INVALID_NAME.translate()));
             return;
         }
 
         //check if already has a home with this name
         for (final DataHome home : data.homes()) {
             if (key.equalsIgnoreCase(home.key())) {
-                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.ERROR_DUPLICATE_HOME.translate(config)));
+                player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate() + LangKey.ERROR_DUPLICATE_HOME.translate()));
                 return;
             }
         }
@@ -62,7 +60,7 @@ public final class SetHomeCommand {
         final Location location = player.getLocation();
         final DataHome home = new DataHome(key, location.getWorld().getName(), location.getX(), location.getY(), location.getZ(), location.getYaw(), location.getPitch());
         CompletableFuture.runAsync(() -> {
-            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.SUCCESS_NEW_HOME.translate(config, s -> s.replaceAll("%name%", home.displayName()))));
+            player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate() + LangKey.SUCCESS_NEW_HOME.translate(s -> s.replaceAll("%name%", home.displayName()))));
             data.homes().add(home);
             saveSecure(data);
         });
@@ -75,6 +73,6 @@ public final class SetHomeCommand {
     }
 
     private void saveSecure(final DataPlayer data) {
-        this.plugin.getStorageHandler().save(data);
+        PrismaHomes.STORAGE().save(data);
     }
 }

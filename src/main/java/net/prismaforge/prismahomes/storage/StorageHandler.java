@@ -5,6 +5,7 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import net.prismaforge.libraries.config.Config;
 import net.prismaforge.prismahomes.PrismaHomes;
+import net.prismaforge.prismahomes.utility.LangKey;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,26 +14,49 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public final class StorageHandler {
     PrismaHomes plugin;
-    Map<UUID, DataPlayer> cache;
+    Map<UUID, DataPlayer> dataCache;
+    Map<String, String> messageCache;
+    Config messages;
 
     public StorageHandler(final PrismaHomes plugin) {
         this.plugin = plugin;
-        this.cache = new HashMap<>();
+        this.dataCache = new HashMap<>();
+        this.messageCache = new HashMap<>();
+        this.messages = new Config("messages", plugin);
+    }
+
+    public void createMessageConfig() {
+        //initialize all lang keys to config once!
+        if (!messages.contains("messages.prefix.homes")) {
+            for (final LangKey langKey : LangKey.values()) {
+                langKey.translate();
+            }
+        }
+    }
+
+    @NonNull
+    public synchronized String getMessage(String key, String defaultValue) {
+        if (this.messageCache.containsKey(key)) {
+            return this.messageCache.get(key);
+        }
+        final String result = this.messages.getConfigField(key, defaultValue);
+        this.messageCache.put(key, result);
+        return result;
     }
 
     @NonNull
     public synchronized DataPlayer get(final UUID uuid) {
-        if (this.cache.containsKey(uuid)) {
-            return this.cache.get(uuid);
+        if (this.dataCache.containsKey(uuid)) {
+            return this.dataCache.get(uuid);
         }
         final Config file = getFile(uuid);
         final DataPlayer data = DataPlayer.createFromConfig(file, uuid);
-        this.cache.put(uuid, data);
+        this.dataCache.put(uuid, data);
         return data;
     }
 
     public synchronized void save(final DataPlayer data) {
-        this.cache.put(data.uuid(), data);
+        this.dataCache.put(data.uuid(), data);
         final Config file = getFile(data.uuid());
         data.saveToConfig(file);
     }
