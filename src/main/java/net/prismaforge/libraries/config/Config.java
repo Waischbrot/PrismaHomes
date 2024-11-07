@@ -2,9 +2,13 @@ package net.prismaforge.libraries.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import lombok.AccessLevel;
+import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -39,13 +43,52 @@ public final class Config {
 
     public boolean setField(String path, Object o) {
         getConfig().set(path, o);
-        getConfig().contains("");
         return save();
     }
 
     public boolean contains(String path) {
         return getConfig().contains(path);
     }
+
+    @NonNull
+    public Set<String> getKeyset(String path) {
+        FileConfiguration cfg = this.getConfig();
+
+        // Check if the path exists and is a section
+        if (cfg.isConfigurationSection(path)) {
+            return cfg.getConfigurationSection(path).getKeys(false)
+                    .stream()
+                    .filter(key -> cfg.isConfigurationSection(path + "." + key))
+                    .collect(Collectors.toSet());
+        }
+
+        // Return an empty set if the path is not a section or does not exist
+        return Collections.emptySet();
+    }
+
+    public void clean() {
+        // Clear all entries from the in-memory FileConfiguration object
+        this.fileConfiguration.getKeys(false).forEach(key -> this.fileConfiguration.set(key, null));
+
+        // Save the cleared configuration to the YAML file to apply changes on disk
+        save();
+    }
+
+    public void clean(String path) {
+        FileConfiguration cfg = this.getConfig();
+
+        // Check if the path exists and is a section
+        if (cfg.isConfigurationSection(path)) {
+            // Clear all keys in the specified section
+            cfg.getConfigurationSection(path).getKeys(false).forEach(key -> cfg.set(path + "." + key, null));
+        } else {
+            System.out.println("The specified path does not exist or is not a section: " + path);
+        }
+
+        // Save the configuration to apply changes
+        save();
+    }
+
 
     @SuppressWarnings("unchecked")
     @Nullable

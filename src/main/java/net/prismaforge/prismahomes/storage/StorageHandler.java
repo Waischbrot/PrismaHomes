@@ -5,9 +5,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import net.prismaforge.libraries.config.Config;
-import net.prismaforge.libraries.scheduler.Scheduler;
 import net.prismaforge.prismahomes.PrismaHomes;
-import org.bukkit.Bukkit;
 
 import java.util.UUID;
 
@@ -18,12 +16,16 @@ public final class StorageHandler {
 
     @NonNull
     public synchronized DataPlayer get(final UUID uuid) {
-        final Config file = new Config("homes/" + uuid.toString(), this.plugin);
+        final Config file = getFile(uuid);
         return DataPlayer.createFromConfig(file, uuid);
     }
 
     public synchronized void save(final DataPlayer data) {
-        final Config file = new Config("homes/" + data.uuid(), this.plugin);
+        final Config file = getFile(data.uuid());
         data.saveToConfig(file);
+    }
+
+    private synchronized Config getFile(final UUID uuid) {
+        return new Config("homes/" + uuid, this.plugin);
     }
 }

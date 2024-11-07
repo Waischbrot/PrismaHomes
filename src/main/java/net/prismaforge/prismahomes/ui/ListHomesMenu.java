@@ -83,7 +83,7 @@ public final class ListHomesMenu extends PrismaInventory {
                 sc.byTexture("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Y3Y2RlZWZjNmQzN2ZlY2FiNjc2YzU4NGJmNjIwODMyYWFhYzg1Mzc1ZTlmY2JmZjI3MzcyNDkyZDY5ZiJ9fX0=");
                 sc.name(LangKey.MENU_OVERVIEW_TITLE.translate(config));
                 sc.lore(LangKey.MENU_OVERVIEW_LORE.translateList(config, s ->
-                        s.replaceAll("%homes%", String.valueOf(data.homes().size())).replaceAll("%slots%", String.valueOf(this.slots))));
+                        s.replaceAll("%homes%", String.valueOf(data.countHomes())).replaceAll("%slots%", String.valueOf(this.slots))));
             }));
 
             //close inventory!

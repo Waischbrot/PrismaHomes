@@ -38,7 +38,7 @@ public final class SetHomeCommand {
 
         //check if has slots
         final int slots = SlotsUtil.availableSlots(player);
-        if (data.homes().size() >= slots) {
+        if (data.countHomes() >= slots) {
             player.sendMessage(ColorUtil.colorString(LangKey.PREFIX.translate(config) + LangKey.ERROR_NO_SLOTS.translate(config)));
             return;
         }

@@ -1,6 +1,9 @@
 package net.prismaforge.prismahomes.storage;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 import lombok.experimental.Accessors;
 import lombok.experimental.FieldDefaults;
 import net.prismaforge.libraries.config.Config;
@@ -22,31 +25,57 @@ public final class DataPlayer {
         this.homes = new ArrayList<>();
     }
 
-    private DataPlayer(final Config config, final UUID uuid) {
+    private DataPlayer(final UUID uuid, final List<DataHome> homes) {
         this.uuid = uuid;
-        this.homes = new ArrayList<>();
-        final List<String> sHomes = config.getConfigField("homes");
-        for (final String home : sHomes) {
-            DataHome.deserialize(home).ifPresent(this.homes::add);
-        }
+        this.homes = homes;
     }
 
     @NonNull
     public static DataPlayer createFromConfig(final Config config, final UUID uuid) {
+        // First creation
         if (!config.contains("uuid")) {
-            config.setField("uuid", uuid.toString());
-            config.setField("homes", List.of());
+            DataPlayer data = new DataPlayer(uuid, new ArrayList<>());
+            data.saveToConfig(config);
+            return data;
         }
-        return new DataPlayer(config, uuid);
+
+        // Current version -> load all homes from config
+        final List<DataHome> homes = new ArrayList<>();
+        for (final String key : config.getKeyset("homes")) {
+            final String prefix = "homes." + key + ".";
+            final String displayName = config.getConfigField(prefix + "display-name");
+            final String material = config.getConfigField(prefix + "material");
+            final String world = config.getConfigField(prefix + "world");
+
+            // Retrieve as Double and cast to double (primitive)
+            final double x = config.getConfigField(prefix + "x");
+            final double y = config.getConfigField(prefix + "y");
+            final double z = config.getConfigField(prefix + "z");
+
+            // Retrieve as Double and convert to Float
+            final float yaw = ((Number) config.getConfigField(prefix + "yaw", 0.0)).floatValue();
+            final float pitch = ((Number) config.getConfigField(prefix + "pitch", 0.0)).floatValue();
+
+            homes.add(new DataHome(key, displayName, material, world, x, y, z, yaw, pitch));
+        }
+        return new DataPlayer(uuid, homes);
     }
+
 
     public void saveToConfig(final Config config) {
         config.setField("uuid", uuid.toString());
-        final List<String> sHomes = new ArrayList<>();
+        config.clean("homes"); //delete old homes and overwrite clean!
         for (final DataHome home : this.homes) {
-            sHomes.add(home.serialize());
+            final String prefix = "homes." + home.key() + ".";
+            config.setField(prefix + "display-name", home.displayName());
+            config.setField(prefix + "material", home.material());
+            config.setField(prefix + "world", home.world());
+            config.setField(prefix + "x", home.x());
+            config.setField(prefix + "y", home.y());
+            config.setField(prefix + "z", home.z());
+            config.setField(prefix + "yaw", home.yaw());
+            config.setField(prefix + "pitch", home.pitch());
         }
-        config.setField("homes", sHomes);
     }
 
     @NonNull
