@@ -6,7 +6,6 @@ import lombok.experimental.FieldDefaults;
 import net.prismaforge.libraries.commands.annotations.Command;
 import net.prismaforge.libraries.commands.annotations.SubCommand;
 import net.prismaforge.libraries.commands.annotations.TabCompletion;
-import net.prismaforge.libraries.config.Config;
 import net.prismaforge.libraries.strings.ColorUtil;
 import net.prismaforge.prismahomes.PrismaHomes;
 import net.prismaforge.prismahomes.storage.DataHome;
