@@ -26,7 +26,7 @@ public enum LangKey {
     MENU_NO_NEXT_PAGE("messages.menu.page.next.none", "&7Nächste Seite"),
     MENU_NEXT_PAGE("messages.menu.page.next.available", "&6Nächste Seite"),
     MENU_HOME_TITLE("messages.menu.home.title", "%name% &8(&eOrt&8)"),
-    MENU_HOME_LORE("messages.menu.home.lore", "&8Schlüssel: %key%\n\n&7Welt&8: %world%\n&7X&8: &e%x%&7, Y&8: &e%y%&7, Z&8: &e%z%\n\n&aLinksklick um zu teleportieren!\n&8Rechtsklick zum Verwalten"),
+    MENU_HOME_LORE("messages.menu.home.lore", "&8Schlüssel: %key%\n\n&7Welt&8: &e%world%\n&7X&8: &e%x%&7, Y&8: &e%y%&7, Z&8: &e%z%\n\n&aLinksklick um zu teleportieren!\n&8Rechtsklick zum Verwalten"),
     MENU_EDIT_ICON_TITLE("messages.menu.edit.icon.title", "%name% &8(&eOrt&8)"),
     MENU_EDIT_ICON_LORE("messages.menu.edit.icon.lore", "&8Schlüssel: %key%\n\n&7Welt&8: %world%\n&7X&8: &e%x%&7, Y&8: &e%y%&7, Z&8: &e%z%\n\n&8Dieses Home wird bearbeitet."),
     MENU_OVERVIEW_TITLE("messages.menu.overview.title", "&6&lHome Übersicht"),
